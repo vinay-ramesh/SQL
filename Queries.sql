@@ -117,3 +117,55 @@ SELECT * FROM user;
  */
 
 -- SESSION 3: PRIMARY KEY vs UNIQUE KEY
+-- PRIMARY KEY --> Any record inside the table can be uniquely identidfied by PRIMARY KEY and it cannot be NULL, and in the table ideally we will have 1 column as primary key.
+-- Example: product_id
+-- AUTO_INCREMENT ---helps to increment the id automatically for every record added.
+CREATE TABLE actors(
+    id int NOT NULL AUTO_INCREMENT,
+    firstName varchar(20) NOT NULL,
+    location varchar(20) NOT NULL DEFAULT "Banglore",
+    PRIMARY KEY(id)
+);
+DESC actors;
+/*
++-----------+-------------+------+-----+----------+----------------+
+| Field     | Type        | Null | Key | Default  | Extra          |
++-----------+-------------+------+-----+----------+----------------+
+| id        | int         | NO   | PRI | NULL     | auto_increment |
+| firstName | varchar(20) | NO   |     | NULL     |                |
+| location  | varchar(20) | NO   |     | Banglore |                |
++-----------+-------------+------+-----+----------+----------------+ 
+ */
+INSERT INTO actors(firstName) VALUES("Dr.Puneet Rajkumar");
+INSERT INTO actors(firstName, location) VALUES("Kapil", "Mumbai");
+SELECT * FROM actors;
+/*
++----+--------------------+----------+
+| id | firstName          | location |
++----+--------------------+----------+
+|  1 | Dr.Puneet Rajkumar | Banglore |
+|  2 | Kapil              | Mumbai   |
++----+--------------------+----------+ 
+ */
+-- UNIQUE KEY --> Helps to hold Unique values in table  (Main purpose is to make sure that the values do not duplicate in table)and can also take NULL as value
+-- REF https://www.w3schools.com/sql/sql_unique.asp
+-- Ideal situation is, 1 primary key and multiple UNIQUE keys in the table
+CREATE TABLE new_employee(
+    id int NOT NULL AUTO_INCREMENT,
+    firstName varchar(20) NOT NULL,
+    email varchar(20) NOT NULL,
+    PRIMARY KEY(id),
+    UNIQUE(email)
+);
+INSERT INTO new_employee(firstName, email) values("Test", "test@gmail.com"); --success
+INSERT INTO new_employee(firstName, email) values("Testing", "test3@gmail.com"); --success
+INSERT INTO new_employee(firstName, email) values("Test2", "test@gmail.com"); --error ERROR 1062 (23000): Duplicate entry 'test@gmail.com' for key 'new_employee.email'
+/*
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | int         | NO   | PRI | NULL    | auto_increment |
+| firstName | varchar(20) | NO   |     | NULL    |                |
+| email     | varchar(20) | NO   | UNI | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+ 
+ */
