@@ -169,3 +169,106 @@ INSERT INTO new_employee(firstName, email) values("Test2", "test@gmail.com"); --
 | email     | varchar(20) | NO   | UNI | NULL    |                |
 +-----------+-------------+------+-----+---------+----------------+ 
  */
+
+-- Session 4 CRUD with Truncate
+CREATE TABLE employee(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    firstName varchar(20) NOT NULL,
+    lastName varchar(20) NOT NULL,
+    email varchar(20) NOT NULL UNIQUE,
+    age int NOT NULL,
+    salary int NOT NULL,
+    location varchar(30) NOT NULL DEFAULT "Banglore"
+);
+SELECT * FROM employee;
+
+-- create
+INSERT INTO employee(firstName, lastName, email, age, salary) VALUES("Vinay", "Ramesh", "vinay@gmail.com", 26, 1250000);
+INSERT INTO employee(firstName, lastName, email, age, salary) VALUES("Krishna", "Vajramatti", "krishna@gmail.com", 26, 1250000);
+INSERT INTO employee(firstName, lastName, email, age, salary) VALUES("Test", "Test", "Test@gmail.com", 26, 125000);
+-- Select using where clause
+SELECT * FROM employee WHERE age=26;
+SELECT * FROM employee WHERE firstName="krishna"; --1 RECORD -- case in sensitive
+SELECT * FROM employee WHERE BINARY firstName="krishna"; --Empty set, 1 warning (0.00 sec) -- NO RECORD FOUND - BINARY keyword added for matching evry case, case sensitive
+-- Renaming the columns using AS Keyword
+SELECT firstName as name FROM employee;
+/*
++---------+
+| name    |
++---------+
+| Vinay   |
+| Krishna |
++---------+ 
+ */
+
+-- Update specific record
+-- If we miss the WHERE caluse in update operation, Evry row of the table will change as mentioned. 
+UPDATE employee SET lastName="V" WHERE firstName="Krishna";
+UPDATE employee SET salary = salary + 1000000; --Update evry employee salary by 10lakhs
+UPDATE employee SET location = "Ahmedabad" WHERE firstName="krishna" AND lastName="V"; --Update evry employee salary by 10lakhs
+
+-- Delete
+DELETE FROM employee; -- Delete the whole table
+DELETE FROM employee where id=3; -- Delete the perticular record from table
+
+-- ALTER --- This helps in Updating the Structure of the Table
+-- add, drop, modify the columns
+ALTER TABLE employee ADD column role varchar(20);
+ALTER TABLE employee DROP column role varchar(20);
+ALTER TABLE employee MODIFY column firstName varchar(50); --firstname character limit increased
+
+ALTER TABLE employee DROP PRIMARY KEY;
+ALTER TABLE employee ADD UNIQUE(firstName);
+
+-- DDL vs DML -- ref notes
+-- TRUNCATE
+TRUNCATE FROM employee;
+-- Truncate internally drops the table first and recreats the table; 
+-- DELETE will remove data one by one and if data is more , use truncate for quicker response.
+
+-- Session 5 Foreign Key Constraint
+-- Build relation between Course and Students enrolled for course using Foreign key
+-- Create course and students table with foreign key
+CREATE TABLE courses(
+    course_id int AUTO_INCREMENT,
+    course_name varchar(30) NOT NULL,
+    course_duration_months DECIMAL(3,1) NOT NULL,
+    course_fee int NOT NULL,
+    PRIMARY KEY(course_id)
+);
+-- Insert Seed data for courses
+INSERT INTO courses(course_name, course_duration_months, course_fee) VALUES('Big Data', 6.5, 50000);
+INSERT INTO courses(course_name, course_duration_months, course_fee) VALUES('Full stack', 6, 50000);
+INSERT INTO courses(course_name, course_duration_months, course_fee) VALUES('Data Science', 8.5, 60000);
+INSERT INTO courses(course_name, course_duration_months, course_fee) VALUES('Data Analyst', 4, 45000);
+
+CREATE TABLE students(
+    student_id int AUTO_INCREMENT,
+    student_fname varchar(30) NOT NULL,
+    student_lname varchar(30) NOT NULL,
+    student_mname varchar(30),
+    student_email varchar(30) NOT NULL,
+    student_phone varchar(15) NOT NULL,
+    student_alternate_phone varchar(15),
+    selected_course int NOT NULL DEFAULT 1,
+    enrollment_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    years_of_exp int NOT NULL,
+    student_company varchar(30),
+    batch_date varchar(30) NOT NULL,
+    source_of_joining varchar(30) NOT NULL,
+    location varchar(30) NOT NULL DEFAULT "Banglore",
+    PRIMARY KEY(student_id),
+    UNIQUE(student_email),
+    FOREIGN KEY(selected_course) REFERENCES courses(course_id)
+);
+
+SELECT student_id, student_fname, student_lname, selected_course, student_company, years_of_exp, source_of_joining, location FROM students;
+-- Insert students
+INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Virat", "Kohli", "Virat@gmail.com", "9741742797", 2, 18, "RCB", "12-04-2010", "LinkedIn", "Banglore");
+INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("MS", "Dhoni", "Dhoni@gmail.com", "9870653412", 1, 21, "CSK", "12-03-2008", "Selection", "Raanchi");
+
+INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Rahul", "Dravid", "Dravid@gmail.com", "987034561", 3, 35, "RCB", "12-03-1994", "Selection", "Banglore"), ("Yuzi", "Chahal", "Yuzi Chahal@gmail.com", "8762813866", 4, 10, "RR", "14-04-2015", "Selection", "Ponda"), ("Shreyas", "Iyar", "Iyar@gmail.com", "8769054231", 4, 9, "CSK", "12-03-2008", "Reference", "Delhi"), ("Kapil Dev", "Dev", "Dev@gmail.com", "8763923866", 4, 35, "Inidan Old", "12-03-1993", "Selection", "Punjab");
+
+-- Inserting dummy data for course which is not registered results in error;
+INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Kidambi", "Test", "Kidambi@gmail.com", "987038661", 7, 40, "Delhi", "12-03-1994", "Test", "Hydrabad");
+-- ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`trendytech`.`students`, CONSTRAINT `students_ibfk_1` FOREIGN KEY (`selected_course`) REFERENCES `courses` (`course_id`))
