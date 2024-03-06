@@ -314,6 +314,19 @@ SELECT student_fname, years_of_exp FROM students ORDER BY years_of_exp LIMIT 3;
 SELECT student_fname, years_of_exp FROM students ORDER BY years_of_exp DESC LIMIT 3;
 
 -- DISTINCT -- gives values of distict type--where values will not get repeat
+SELECT DISTINCT student_company from students;
+/*
++-----------------+
+| student_company |
++-----------------+
+| RCB             |
+| CSK             |
+| RR              |
+| Inidan Old      |
+| Inidan New      |
+| Mumbai Indians  |
++-----------------+ 
+ */
 SELECT DISTINCT student_fname FROM students ORDER BY years_of_exp DESC LIMIT 3;
 -- ERROR 3065 (HY000): Expression #1 of ORDER BY clause is not in SELECT list, references column 'trendytech.students.years_of_exp' which is not in SELECT list; this is incompatible with DISTINCT
 -- This will lead to error as it hampers the order of query execution in the system --ref notes session 7
@@ -338,3 +351,163 @@ SELECT student_fname FROM students where student_fname LIKE "%Rohi\%t%";
 
 -- Get students who has 5 characters in their name, use underscore( _ ), where one underscore = one character
 SELECT student_fname FROM students where student_fname LIKE "_____";
+
+-- Session 8: Aggregate Functions
+-- Get all students count
+SELECT COUNT(*) AS students_count FROM students;
+/*
++----------------+
+| students_count |
++----------------+
+|             10 |
++----------------+ 
+ */
+SELECT COUNT(DISTINCT student_company) AS total_companies FROM students;
+/*
++-----------------+
+| total_companies |
++-----------------+
+|               6 |
++-----------------+ 
+ */
+
+-- Get students enrolled for perticular batch of march
+SELECT COUNT(*) AS students_enrolled FROM students WHERE enrollment_date LIKE "%-03-%";
+/*
++-------------------+
+| students_enrolled |
++-------------------+
+|                10 |
++-------------------+ 
+ */
+
+-- GROUP BY - Group the data based on Logic
+SELECT source_of_joining, COUNT(*) FROM students GROUP BY source_of_joining;
+/*
++-------------------+----------+
+| source_of_joining | COUNT(*) |
++-------------------+----------+
+| Selection         |        6 |
+| Reference         |        1 |
+| Team Buy          |        3 |
++-------------------+----------+ 
+ */
+SELECT location, COUNT(*) FROM students GROUP BY location;
+/*
++----------+----------+
+| location | COUNT(*) |
++----------+----------+
+| Banglore |        3 |
+| Raanchi  |        1 |
+| Ponda    |        1 |
+| Delhi    |        1 |
+| Punjab   |        1 |
+| Haryana  |        1 |
+| Mumbai   |        2 |
++----------+----------+ 
+ */
+
+-- Grouping Column should always be projected with Select statement -- otherwise error message will be thrown by system
+-- ie: 
+SELECT location, COUNT(*) FROM students GROUP BY source_of_joining;
+-- ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'trendytech.students.location' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+
+-- Group based on 2 columns
+SELECT location,source_of_joining, COUNT(*) FROM students GROUP BY source_of_joining, location;
+/*
++----------+-------------------+----------+
+| location | source_of_joining | COUNT(*) |
++----------+-------------------+----------+
+| Banglore | Selection         |        3 |
+| Raanchi  | Selection         |        1 |
+| Ponda    | Selection         |        1 |
+| Delhi    | Reference         |        1 |
+| Punjab   | Selection         |        1 |
+| Haryana  | Team Buy          |        1 |
+| Mumbai   | Team Buy          |        2 |
++----------+-------------------+----------+ 
+ */
+
+-- People enrolled for each course
+SELECT selected_course, COUNT(*) FROM students GROUP BY selected_course;
+/*
++-----------------+----------+
+| selected_course | COUNT(*) |
++-----------------+----------+
+|               1 |        2 |
+|               2 |        2 |
+|               3 |        1 |
+|               4 |        4 |
+|               5 |        1 |
++-----------------+----------+ 
+ */
+
+-- MIN and MAX experiences
+SELECT MIN(years_of_exp) AS minimum_exp FROM students;
+/*
++-------------+
+| minimum_exp |
++-------------+
+|           5 |
++-------------+ 
+ */
+SELECT MAX(years_of_exp) AS maximum_exp FROM students;
+-- Min and Max with student names
+SELECT MIN(years_of_exp), student_fname AS minimum_exp FROM students;
+-- ERROR 1140 (42000): In aggregated query without GROUP BY, expression #2 of SELECT list contains nonaggregated column 'trendytech.students.student_fname'; this is incompatible with sql_mode=only_full_group_by
+
+-- Correct way to define minimum experienced player with years of exp
+SELECT student_fname, years_of_exp FROM students ORDER BY years_of_exp LIMIT 1;
+/*
++---------------+--------------+
+| student_fname | years_of_exp |
++---------------+--------------+
+| Dev           |            5 |
++---------------+--------------+ 
+ */
+
+-- Correct way to define minimum experienced player with years of exp
+SELECT student_fname, years_of_exp FROM students ORDER BY years_of_exp DESC LIMIT 1;
+/*
++---------------+--------------+
+| student_fname | years_of_exp |
++---------------+--------------+
+| Rahul         |           35 |
++---------------+--------------+ 
+ */
+
+-- Based on source of joining, show max experiences
+SELECT source_of_joining, MAX(years_of_exp) FROM students GROUP BY source_of_joining;
+/*
++-------------------+-------------------+
+| source_of_joining | MAX(years_of_exp) |
++-------------------+-------------------+
+| Selection         |                35 |
+| Reference         |                 9 |
+| Team Buy          |                20 |
++-------------------+-------------------+ 
+ */
+
+-- Get Sum of experience based on source of joining
+SELECT source_of_joining, SUM(years_of_exp) FROM students GROUP BY source_of_joining;
+/*
++-------------------+-------------------+
+| source_of_joining | SUM(years_of_exp) |
++-------------------+-------------------+
+| Selection         |               141 |
+| Reference         |                 9 |
+| Team Buy          |                40 |
++-------------------+-------------------+ 
+ */
+
+-- Get Avg experience based on source of joining
+SELECT source_of_joining, AVG(years_of_exp) FROM students GROUP BY source_of_joining;
+/*
++-------------------+-------------------+
+| source_of_joining | AVG(years_of_exp) |
++-------------------+-------------------+
+| Selection         |           23.5000 |
+| Reference         |            9.0000 |
+| Team Buy          |           13.3333 |
++-------------------+-------------------+ 
+ */
