@@ -511,3 +511,47 @@ SELECT source_of_joining, AVG(years_of_exp) FROM students GROUP BY source_of_joi
 | Team Buy          |           13.3333 |
 +-------------------+-------------------+ 
  */
+
+-- Session 09: Few more Datatypes
+-- DECIMAL - Datatype to add Decimal Values and can accept 2 params. 
+-- eg DECIMAL(3,1) -- 3 is total number of digits , 1 - Only one digit allowed after decimal point
+-- Ex: course_duration_months DECIMAL(3,1) NOT NULL ---- 
+-- INSERT .....(course_duratin_months) VALUES(11.5) -- Eleven and half months of course duration, so total 3 digits and one digit allowed after decimal point
+
+-- TIMESTAMP -- Helps to maintain the Audit History
+CREATE TABLE newCourses(
+    course_id int AUTO_INCREMENT,
+    course_name varchar(20) NOT NULL,
+    course_duration_months DECIMAL(3,1) NOT NULL,
+    course_fee int NOT NULL,
+    changed_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    PRIMARY KEY(course_id)
+);
+-- ON UPDATE NOW() Helps to store the updated time after any newCourse table update operation, NOW()===CURRENT_TIMESTAMP()
+INSERT INTO newCourses(course_name, course_duration_months, course_fee) VALUES("Devops", 5.5, 50000);
+INSERT INTO newCourses(course_name, course_duration_months, course_fee) VALUES("Testing", 5.5, 25000);
+INSERT INTO newCourses(course_name, course_duration_months, course_fee) VALUES("Automation Testing", 5.5, 35000);
+
+/* Before changing the course duration
++-----------+--------------------+------------------------+------------+---------------------+
+| course_id | course_name        | course_duration_months | course_fee | changed_at          |
++-----------+--------------------+------------------------+------------+---------------------+
+|         1 | Devops             |                    5.5 |      50000 | 2024-03-06 16:24:01 |
+|         2 | Testing            |                    5.5 |      25000 | 2024-03-06 16:24:01 |
+|         3 | Automation Testing |                    5.5 |      35000 | 2024-03-06 16:24:02 |
++-----------+--------------------+------------------------+------------+---------------------+ 
+ */
+
+-- Updating the data
+UPDATE newCourses SET course_duration_months=3.5 where course_id=2;
+UPDATE newCourses SET course_duration_months=4.5 where course_id=3;
+
+/* After changing the duration, observe the time stamps at changed_at column, it is different compared to old table
++-----------+--------------------+------------------------+------------+---------------------+
+| course_id | course_name        | course_duration_months | course_fee | changed_at          |
++-----------+--------------------+------------------------+------------+---------------------+
+|         1 | Devops             |                    5.5 |      50000 | 2024-03-06 16:24:01 |
+|         2 | Testing            |                    3.5 |      25000 | 2024-03-06 16:25:50 |
+|         3 | Automation Testing |                    4.5 |      35000 | 2024-03-06 16:25:51 |
++-----------+--------------------+------------------------+------------+---------------------+ 
+ */
