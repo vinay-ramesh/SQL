@@ -267,8 +267,74 @@ SELECT student_id, student_fname, student_lname, selected_course, student_compan
 INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Virat", "Kohli", "Virat@gmail.com", "9741742797", 2, 18, "RCB", "12-04-2010", "LinkedIn", "Banglore");
 INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("MS", "Dhoni", "Dhoni@gmail.com", "9870653412", 1, 21, "CSK", "12-03-2008", "Selection", "Raanchi");
 
-INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Rahul", "Dravid", "Dravid@gmail.com", "987034561", 3, 35, "RCB", "12-03-1994", "Selection", "Banglore"), ("Yuzi", "Chahal", "Yuzi Chahal@gmail.com", "8762813866", 4, 10, "RR", "14-04-2015", "Selection", "Ponda"), ("Shreyas", "Iyar", "Iyar@gmail.com", "8769054231", 4, 9, "CSK", "12-03-2008", "Reference", "Delhi"), ("Kapil Dev", "Dev", "Dev@gmail.com", "8763923866", 4, 35, "Inidan Old", "12-03-1993", "Selection", "Punjab");
+INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Rahul", "Dravid", "Dravid@gmail.com", "987034561", 3, 35, "RCB", "12-03-1994", "Selection", "Banglore"), ("Yuzi", "Chahal", "Yuzi Chahal@gmail.com", "8762813866", 4, 10, "RR", "14-04-2015", "Selection", "Ponda"), ("Shreyas", "Iyar", "Iyar@gmail.com", "8769054231", 4, 9, "CSK", "12-03-2008", "Reference", "Delhi"), ("Kapil Dev", "Dev", "Dev@gmail.com", "8763923866", 4, 35, "Inidan Old", "12-03-1993", "Selection", "Punjab"),  ("Dev", "S", "DevS@gmail.com", "8783923866", 5, 5, "Inidan New", "12-03-2013", "Team Buy", "Haryana"),  ("Hardik", "Pandya", "Hardik@gmail.com", "8763923566", 2, 15, "Mumbai Indians", "12-03-20133", "Team Buy", "Mumbai"),  ("Rohit", "Sharma", "Sharma@gmail.com", "8745923866", 1, 20, "Mumbai Indians", "12-03-2010", "Team Buy", "Mumbai"),  ("ABD", "De Velliars", "ABD@gmail.com", "8763978866", 4, 22, "RCB", "12-03-2014", "Selection", "Banglore");
 
 -- Inserting dummy data for course which is not registered results in error;
 INSERT INTO students(student_fname, student_lname, student_email, student_phone, selected_course, years_of_exp, student_company, batch_date, source_of_joining, location) VALUES("Kidambi", "Test", "Kidambi@gmail.com", "987038661", 7, 40, "Delhi", "12-03-1994", "Test", "Hydrabad");
 -- ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`trendytech`.`students`, CONSTRAINT `students_ibfk_1` FOREIGN KEY (`selected_course`) REFERENCES `courses` (`course_id`))
+
+-- Session 6: DISTINCT, ORDER BY, LIMIT, LIKE Keywords;
+-- ORDER BY -- Listing Data in perticular format
+SELECT student_fname, years_of_exp from students ORDER BY years_of_exp; --Default Ascending order
+/*
++---------------+--------------+
+| student_fname | years_of_exp |
++---------------+--------------+
+| Shreyas       |            9 |
+| Yuzi          |           10 |
+| Virat         |           18 |
+| MS            |           21 |
+| Rahul         |           35 |
+| Kapil Dev     |           35 |
++---------------+--------------+ 
+ */
+SELECT student_fname, years_of_exp from students ORDER BY years_of_exp DESC; --DESC for descending order
+-- Same query can also be written as 1-student_fname and 2-years_of_exp
+SELECT student_fname, years_of_exp from students ORDER BY 2 DESC; --DESC for descending order
+/*
++---------------+--------------+
+| student_fname | years_of_exp |
++---------------+--------------+
+| Rahul         |           35 |
+| Kapil Dev     |           35 |
+| MS            |           21 |
+| Virat         |           18 |
+| Yuzi          |           10 |
+| Shreyas       |            9 |
++---------------+--------------+ 
+ */ 
+-- 2 levels of Sorting
+SELECT student_fname, years_of_exp from students ORDER BY years_of_exp, student_fname;
+-- Data will get sort at first by years_of_exp and then sorted as per the student_fname
+
+-- LIMIT - Fetches limited number of records, Limit has to be used with Order by keywords
+-- Sort students in ascending order and get 3 candidates with least experience.
+SELECT student_fname, years_of_exp FROM students ORDER BY years_of_exp LIMIT 3;
+-- Students with top 3 exp
+SELECT student_fname, years_of_exp FROM students ORDER BY years_of_exp DESC LIMIT 3;
+
+-- DISTINCT -- gives values of distict type--where values will not get repeat
+SELECT DISTINCT student_fname FROM students ORDER BY years_of_exp DESC LIMIT 3;
+-- ERROR 3065 (HY000): Expression #1 of ORDER BY clause is not in SELECT list, references column 'trendytech.students.years_of_exp' which is not in SELECT list; this is incompatible with DISTINCT
+-- This will lead to error as it hampers the order of query execution in the system --ref notes session 7
+-- Correction can be done by using years_of_exp column in projection 
+SELECT DISTINCT student_fname, years_of_exp FROM students ORDER BY years_of_exp DESC LIMIT 3;
+
+-- LIKE 
+-- Similar to where clause and helps to match the data with fuzzy manner
+-- Students name contains "Ra" in it
+SELECT student_fname FROM students where student_fname LIKE "%ra%";
+
+-- Students name starts with "Ra"
+SELECT student_fname FROM students where student_fname LIKE "ra%";
+
+-- Students name ends with "Ra"
+SELECT student_fname FROM students where student_fname LIKE "%ra";
+-- % is the wild card character indicating that it can be anything
+
+-- Students name ends with "Rohi%t" -- string itself contains % character
+-- Use escape character
+SELECT student_fname FROM students where student_fname LIKE "%Rohi\%t%";
+
+-- Get students who has 5 characters in their name, use underscore( _ ), where one underscore = one character
+SELECT student_fname FROM students where student_fname LIKE "_____";
