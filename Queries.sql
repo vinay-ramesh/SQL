@@ -555,3 +555,99 @@ UPDATE newCourses SET course_duration_months=4.5 where course_id=3;
 |         3 | Automation Testing |                    4.5 |      35000 | 2024-03-06 16:25:51 |
 +-----------+--------------------+------------------------+------------+---------------------+ 
  */
+
+-- Session 10: Logical operators
+-- Equal to (=)
+-- Not Equal to (!=)
+-- Less than (<)
+-- Greater than (>)
+--  AND / OR / BETWEEN / NOT BETWEEN / LIKE / NOT LIKE / IN / NOT IN / CASE - WHEN - THEN - ELSE - END 
+
+-- Course, which has word "data"
+SELECT course_name FROM courses WHERE course_name LIKE "%data%"; 
+/*
++--------------+
+| course_name  |
++--------------+
+| Big Data     |
+| Data Science |
+| Data Analyst |
++--------------+ 
+ */
+SELECT course_name FROM courses WHERE course_name NOT LIKE "%data%"; 
+/*
++-------------+
+| course_name |
++-------------+
+| Test        |
+| Full stack  |
++-------------+ 
+ */
+
+--list of students - from banglore joined through selection and have more than 15 yearos of exp
+SELECT student_fname, location, years_of_exp FROM students WHERE years_of_exp > 15 AND source_of_joining="Selection" AND location="Banglore"; 
+/*
++---------------+----------+--------------+
+| student_fname | location | years_of_exp |
++---------------+----------+--------------+
+| Virat         | Banglore |           18 |
+| Rahul         | Banglore |           35 |
+| ABD           | Banglore |           22 |
++---------------+----------+--------------+ 
+ */
+
+-- People whose years_of_exp dont fall between X to Y
+SELECT student_fname, location, years_of_exp FROM students WHERE years_of_exp < 10 OR years_of_exp > 20 ;
+-- OR
+SELECT student_fname, location, years_of_exp FROM students WHERE years_of_exp NOT BETWEEN 10 AND 20 ;
+/*
++---------------+----------+--------------+
+| student_fname | location | years_of_exp |
++---------------+----------+--------------+
+| MS            | Raanchi  |           21 |
+| Rahul         | Banglore |           35 |
+| Shreyas       | Delhi    |            9 |
+| Kapil Dev     | Punjab   |           35 |
+| Dev           | Haryana  |            5 |
+| ABD           | Banglore |           22 |
++---------------+----------+--------------+ 
+ */
+
+-- Get the students working for perticular companies...
+SELECT student_fname, student_company, years_of_exp FROM students WHERE student_company="RCB" OR student_company="RR" OR student_company="LSG";
+-- IN operator--- short hand for multiple OR operator
+SELECT student_fname, student_company, years_of_exp FROM students WHERE student_company IN ("RCB", "RR", "LSG");
+/*
++---------------+-----------------+--------------+
+| student_fname | student_company | years_of_exp |
++---------------+-----------------+--------------+
+| Virat         | RCB             |           18 |
+| Rahul         | RCB             |           35 |
+| Yuzi          | RR              |           10 |
+| Kapil Dev     | LSG             |           35 |
+| Dev           | LSG             |            5 |
+| ABD           | RCB             |           22 |
++---------------+-----------------+--------------+ 
+ */
+--  Negation for IN operator --- NOT IN
+SELECT student_fname, student_company, years_of_exp FROM students WHERE student_company NOT IN ("RCB", "RR", "LSG");
+/*
++---------------+-----------------+--------------+
+| student_fname | student_company | years_of_exp |
++---------------+-----------------+--------------+
+| MS            | CSK             |           21 |
+| Shreyas       | CSK             |            9 |
+| Hardik        | Mumbai Indians  |           15 |
+| Rohit         | Mumbai Indians  |           20 |
++---------------+-----------------+--------------+   
+ */
+
+-- CASE operator helps to build the column based on condition;
+SELECT course_id, course_name, course_duration_months, 
+    CASE
+        WHEN course_duration_months > 5 
+        THEN "Masters"
+        ELSE "Diploma"
+    END 
+AS course_type FROM courses;
+-- AS acts as Alias and gives a name for column
