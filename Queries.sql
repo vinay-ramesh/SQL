@@ -651,3 +651,146 @@ SELECT course_id, course_name, course_duration_months,
     END 
 AS course_type FROM courses;
 -- AS acts as Alias and gives a name for column
+
+-- Session 11: Joins
+-- More Theory- ref notes
+-- 1. Inner Join - Only matching records are shown
+SELECT students.student_fname, students.student_lname, course_name FROM students JOIN courses ON students.selected_course = courses.course_id;
+/*
++---------------+---------------+--------------+
+| student_fname | student_lname | course_name  |
++---------------+---------------+--------------+
+| MS            | Dhoni         | Test         |
+| Rohit         | Sharma        | Test         |
+| Virat         | Kohli         | Big Data     |
+| Hardik        | Pandya        | Big Data     |
+| Rahul         | Dravid        | Full stack   |
+| Yuzi          | Chahal        | Data Science |
+| Shreyas       | Iyar          | Data Science |
+| Kapil Dev     | Dev           | Data Science |
+| ABD           | De Velliars   | Data Science |
+| Dev           | S             | Data Analyst |
++---------------+---------------+--------------+ 
+ */
+
+-- Copying the table without constraints
+CREATE TABLE students_latest AS SELECT * FROM students;
+
+-- Left outer join
+SELECT students_latest.student_fname, students_latest.student_lname, course_name FROM students_latest LEFT JOIN courses_latest ON students_latest.selected_course = courses_latest.course_id;
+-- DHOMI has null val
+/*
++---------------+---------------+--------------+
+| student_fname | student_lname | course_name  |
++---------------+---------------+--------------+
+| Virat         | Kohli         | Full stack   |
+| MS            | Dhoni         | NULL         |
+| Rahul         | Dravid        | Full stack   |
+| Yuzi          | Chahal        | Data Science |
+| Shreyas       | Iyar          | Data Science |
+| Kapil Dev     | Dev           | Data Science |
+| Dev           | S             | Data Analyst |
+| Hardik        | Pandya        | Big Data     |
+| Rohit         | Sharma        | NULL         |
+| ABD           | De Velliars   | Data Science |
++---------------+---------------+--------------+ 
+ */
+
+-- Right OUTER JOIN
+SELECT students_latest.student_fname, students_latest.student_lname, course_name FROM students_latest RIGHT JOIN courses_latest ON students_latest.selected_course = courses_latest.course_id;
+
+/* 
++---------------+---------------+--------------+
+| student_fname | student_lname | course_name  |
++---------------+---------------+--------------+
+| Hardik        | Pandya        | Big Data     |
+| Rahul         | Dravid        | Full stack   |
+| Virat         | Kohli         | Full stack   |
+| ABD           | De Velliars   | Data Science |
+| Kapil Dev     | Dev           | Data Science |
+| Shreyas       | Iyar          | Data Science |
+| Yuzi          | Chahal        | Data Science |
+| Dev           | S             | Data Analyst |
+| NULL          | NULL          | Test         |
++---------------+---------------+--------------+ */
+
+-- Full outer join --> Left UNION Right
+SELECT students_latest.student_fname, students_latest.student_lname, course_name FROM students_latest LEFT JOIN courses_latest ON students_latest.selected_course = courses_latest.course_id 
+UNION 
+SELECT students_latest.student_fname, students_latest.student_lname, course_name FROM students_latest RIGHT JOIN courses_latest ON students_latest.selected_course = courses_latest.course_id;
+
+/*
+    +---------------+---------------+--------------+
+| student_fname | student_lname | course_name  |
++---------------+---------------+--------------+
+| Virat         | Kohli         | Full stack   |
+| MS            | Dhoni         | NULL         |
+| Rahul         | Dravid        | Full stack   |
+| Yuzi          | Chahal        | Data Science |
+| Shreyas       | Iyar          | Data Science |
+| Kapil Dev     | Dev           | Data Science |
+| Dev           | S             | Data Analyst |
+| Hardik        | Pandya        | Big Data     |
+| Rohit         | Sharma        | NULL         |
+| ABD           | De Velliars   | Data Science |
+| NULL          | NULL          | Test         |
++---------------+---------------+--------------+
+ */
+
+--  Session 12: WHERE vs HAVING clause
+-- Get diff source of joining count
+SELECT source_of_joining, COUNT(*) FROM students GROUP BY source_of_joining;
+/*
++-------------------+----------+
+| source_of_joining | COUNT(*) |
++-------------------+----------+
+| Selection         |        6 |
+| Reference         |        1 |
+| Team Buy          |        3 |
++-------------------+----------+ 
+ */
+
+-- HAVING is used after Group By and Filtering is happening after the Aggregation
+-- Get the source of joining greater than 1
+-- Using WHERE ----- error
+SELECT source_of_joining, COUNT(*) AS Total FROM students GROUP BY source_of_joining WHERE Total > 1;
+-- ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE Total > 1' at line 1
+
+-- Using HAVING
+SELECT source_of_joining, COUNT(*) AS Total FROM students GROUP BY source_of_joining HAVING Total > 1;
+/*
++-------------------+-------+
+| source_of_joining | Total |
++-------------------+-------+
+| Selection         |     6 |
+| Team Buy          |     3 |
++-------------------+-------+ 
+ */
+
+-- Get students count who registered through "selection"
+-- 1. without filtering first
+SELECT source_of_joining, COUNT(*) AS Total FROM students GROUP BY source_of_joining HAVING source_of_joining = "selection";
+-- Here aggrgation(group by) is happening first and later the filter is applied
+/*
++-------------------+-------+
+| source_of_joining | Total |
++-------------------+-------+
+| Selection         |     6 |
++-------------------+-------+ 
+ */
+--  2. More Optimised --- filter the data first and aggregate the data later
+SELECT source_of_joining, COUNT(*) AS Total FROM students WHERE source_of_joining = "Selection" GROUP BY source_of_joining;
+
+-- WHERE and HAVING in single query
+-- WHERE is used to filter out the individual data based on condition first before Group by
+-- Get locations from which more than 1 students joined and has exp of more than 15 years
+
+SELECT location, COUNT(*) AS total FROM students WHERE years_of_exp > 15 GROUP BY location HAVING total > 1;
+
+/*
++----------+-------+
+| location | total |
++----------+-------+
+| Banglore |     3 |
++----------+-------+ 
+ */
