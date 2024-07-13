@@ -794,3 +794,53 @@ SELECT location, COUNT(*) AS total FROM students WHERE years_of_exp > 15 GROUP B
 | Banglore |     3 |
 +----------+-------+ 
  */
+
+-- Session 13 OVER and PARTITION BY caluse
+CREATE TABLE malgudi_employee(
+    firstName varchar(20),
+    lastName varchar(20),
+    age int(11),
+    salary int(11),
+    location varchar(20)
+);
+
+INSERT INTO malgudi_employee(firstName, age, salary, location) VALUES("John", 26, 1200000, "Banglore"); --can insert values of required column and restt are left as NULL, hence we need to mention column names (firstName, age, salary, location)
+INSERT INTO malgudi_employee VALUES("Peter","Doe", 26, 1200000, "Banglore"); --Must have to insert all the values of perticular column
+
+-- Inserting multiple records
+INSERT INTO malgudi_employee VALUES("Test1","Testing", 22, 1200005, "Banglore"), ("Test2","Doe1", 26, 1200067, "Mysore"), ("Peter2","Doe2", 26, 1304000, "Manglore");
+
+-- Find how many employees are from each location and their avg salary
+SELECT location, COUNT(location), AVG(salary) FROM malgudi_employee GROUP BY location;
+/*
++----------+-----------------+--------------+
+| location | COUNT(location) | AVG(salary)  |
++----------+-----------------+--------------+
+| Banglore |               3 | 1200001.6667 |
+| Mysore   |               1 | 1200067.0000 |
+| Manglore |               1 | 1304000.0000 |
++----------+-----------------+--------------+    
+ */
+
+-- Now I want to get aggrgated(location, count, avg) and non aggrgated(firstname, lastname) columns togather
+-- Sample out put is
+
+/*
++-----------------------------------------------------------------+
+| firstname | lastname | location | COUNT(location) | AVG(salary) |
++-----------------------------------------------------------------+
+| Vinay     | Ramesh   | Banglore |              3 | 1200001.6667 |
+| Vinay     | Ramesh   | Banglore |              3 | 1200001.6667 |
+| Vinay     | Ramesh   | Banglore |              3 | 1200001.6667 |
+| Vinay     | Ramesh   | Banglore |              3 | 1200001.6667 |
++-----------------------------------------------------------------+  
+ */
+
+-- Using conventional method 
+SELECT firstName, lastName, location, COUNT(location), AVG(salary) FROM malgudi_employee GROUP BY location;
+-- ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'trendytech.malgudi_employee.firstName' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+
+--Using Join
+SELECT malgudi_employee.firstName, malgudi_employee.lastName, malgudi_employee.location, Total, Average_Salaryy FROM malgudi_employee JOIN (
+SELECT firstName,lastName,location, COUNT(location) AS Total, AVG(salary) AS Average_Salaryy FROM malgudi_employee GROUP BY location
+) tempTable ON malgudi_employee.location = tempTable.location;
